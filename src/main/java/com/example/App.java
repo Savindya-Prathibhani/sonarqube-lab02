@@ -6,10 +6,11 @@ public class App {
 
         Calculator calc = new Calculator();
 
-        System.out.println(calc.calculate(10, 5, "add"));
+        System.out.println(calc.calculate(10, 5, "add-again"));
 
         UserService service = new UserService();
         service.findUser("admin");
+        service.deleteUser("admin");   // new dangerous call
     }
 }
 
