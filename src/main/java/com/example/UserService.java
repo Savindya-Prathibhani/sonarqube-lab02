@@ -13,10 +13,9 @@ public class UserService {
 
     private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
 
-    // keep these as your lab used (edit DB name if needed)
-    private static final String DB_URL = "jdbc:mysql://localhost/db";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "password";
+    private static final String DB_URL = System.getenv("DB_URL") == null ? "jdbc:mysql://localhost/db" : System.getenv("DB_URL");
+    private static final String DB_USER = System.getenv("DB_USER") == null ? "root" : System.getenv("DB_USER");
+    private static final String DB_PASSWORD = System.getenv("DB_PASSWORD");
 
     public void findUser(String username) {
         // ✅ Fix 1: no SELECT *
@@ -29,17 +28,19 @@ public class UserService {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    // ✅ Fix 2: use logger instead of System.out
-                    LOGGER.info("Found user: id=" + rs.getInt("id") + ", name=" + rs.getString("name"));
+                    int id = rs.getInt("id");
+                    String name = rs.getString("name");
+                    LOGGER.log(Level.INFO, () -> "Found user: id=" + id + ", name=" + name);
                 } else {
-                    LOGGER.info("User not found: " + username);
+                    LOGGER.log(Level.INFO, () -> "User not found: " + username);
                 }
             }
-
         } catch (SQLException e) {
-            // ✅ Fix 3: no generic exception; log + wrap
-            LOGGER.log(Level.SEVERE, "DB error while finding user: " + username, e);
-            throw new RuntimeException("Failed to find user: " + username, e);
+            if (LOGGER.isLoggable(Level.SEVERE)) {
+                String msg = "DB error while finding user: " + username;
+                LOGGER.log(Level.SEVERE, msg, e);
+            }
+            throw new IllegalStateException("Failed to find user: " + username, e);
         }
     }
 
@@ -53,14 +54,14 @@ public class UserService {
             ps.setString(1, username);
 
             int rows = ps.executeUpdate();
-            // ✅ Fix 2 again: logger
-            LOGGER.info("Deleted rows=" + rows + " for user=" + username);
+            LOGGER.log(Level.INFO, () -> "Deleted rows=" + rows + " for user=" + username);
             return rows;
-
         } catch (SQLException e) {
-            // ✅ Fix 3 again
-            LOGGER.log(Level.SEVERE, "DB error while deleting user: " + username, e);
-            throw new RuntimeException("Failed to delete user: " + username, e);
+            if (LOGGER.isLoggable(Level.SEVERE)) {
+                String msg = "DB error while deleting user: " + username;
+                LOGGER.log(Level.SEVERE, msg, e);
+            }
+            throw new IllegalStateException("Failed to delete user: " + username, e);
         }
     }
 }
