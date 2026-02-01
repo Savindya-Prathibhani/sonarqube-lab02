@@ -1,38 +1,37 @@
-package main.java.com.example;
+package com.example;
+
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.IntBinaryOperator;
 
 public class Calculator {
 
-    // Code Smell: Long method + high complexity
-    public int calculate(int a, int b, String op) {
-
-        if(op.equals("add")) {
-            return a + b;
-        }
-        if(op.equals("sub")) {
-            return a - b;
-        }
-        if(op.equals("mul")) {
-            return a * b;
-        }
-        if(op.equals("div")) {
-            if(b == 0) {
-                return 0;
+    private static final Map<String, IntBinaryOperator> OPS = Map.of(
+            "add", Integer::sum,
+            "sub", (a, b) -> a - b,
+            "mul", (a, b) -> a * b,
+            "div", (a, b) -> {
+                if (b == 0) throw new IllegalArgumentException("Division by zero");
+                return a / b;
+            },
+            "mod", (a, b) -> {
+                if (b == 0) throw new IllegalArgumentException("Modulo by zero");
+                return a % b;
+            },
+            "pow", (a, b) -> {
+                // keep it int-based; you can change to double if your project expects it
+                if (b < 0) throw new IllegalArgumentException("Negative exponent not supported for int pow");
+                return (int) Math.pow(a, b);
             }
-            return a / b;
-        }
-        if(op.equals("mod")) {
-            return a % b;
-        }
+    );
 
-        return 0;
-    }
+    public int calculate(int a, int b, String op) {
+        if (op == null) throw new IllegalArgumentException("Operation cannot be null");
+        String key = op.trim().toLowerCase(Locale.ROOT);
 
-    // Code Duplication (students must remove)
-    public int addNumbers(int x, int y) {
-        return x + y;
-    }
+        IntBinaryOperator fn = OPS.get(key);
+        if (fn == null) throw new IllegalArgumentException("Unsupported operation: " + op);
 
-    public int sumValues(int a, int b) {
-        return a + b;
+        return fn.applyAsInt(a, b);
     }
 }
