@@ -1,4 +1,4 @@
-package main.java.com.example;
+package com.example;
 
 import java.util.Locale;
 import java.util.Map;

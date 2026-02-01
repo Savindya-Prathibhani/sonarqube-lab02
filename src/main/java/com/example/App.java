@@ -1,16 +1,19 @@
-package main.java.com.example;
+package com.example;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class App {
+    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
-    public static void main(String[] args) throws Exception {
-
+    public static void main(String[] args) {
         Calculator calc = new Calculator();
+        LOGGER.log(Level.INFO, () -> "Result: " + calc.calculate(10, 5, "add"));
 
-        System.out.println(calc.calculate(10, 5, "add"));
+       UserService userService = new UserService();
 
-        UserService service = new UserService();
-        service.findUser("admin");
-        service.deleteUser("admin");   // new dangerous call
+        userService.findUser("admin");
+        userService.deleteUser("admin");
     }
 }
 
